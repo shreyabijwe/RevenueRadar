@@ -1,0 +1,17 @@
+pandas
+psycopg2-binary
+sqlalchemy
+faker
+openpyxl
+matplotlib
+seaborn
+scikit-learn
+fastapi
+uvicorn
+python-jose
+reportlab
+joblib
+python-dotenv
+numpy
+prophet
+statsmodels
