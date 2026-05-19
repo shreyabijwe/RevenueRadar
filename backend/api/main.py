@@ -1,7 +1,7 @@
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
 import pandas as pd
@@ -15,16 +15,16 @@ load_dotenv()
 
 app = FastAPI(title="RevenueRadar — Financial Analytics API", version="1.0.0")
 
+origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=False,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-# ── JWT Config ─────────────────────────────────────────────────────────────────
 SECRET_KEY = os.getenv("JWT_SECRET", "revenueradar_secret_key_shreya_2024")
 ALGORITHM  = "HS256"
 security   = HTTPBearer()
@@ -40,24 +40,20 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-# ── Load Data ──────────────────────────────────────────────────────────────────
 def get_df():
     return pd.read_csv('exports/financials.csv')
 
 def get_forecast():
     return pd.read_csv('exports/forecast.csv')
 
-# ── Auth Models ────────────────────────────────────────────────────────────────
 class LoginRequest(BaseModel):
     username: str
     password: str
 
-# ── Routes ─────────────────────────────────────────────────────────────────────
 @app.get("/")
 def root():
     return {"message": "RevenueRadar Financial Analytics API", "status": "running"}
 
-# Login
 @app.post("/login")
 def login(req: LoginRequest):
     if req.username == "admin" and req.password == "radar2024":
@@ -65,7 +61,6 @@ def login(req: LoginRequest):
         return {"access_token": token, "token_type": "bearer"}
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
-# KPIs
 @app.get("/kpis")
 def get_kpis(user=Depends(verify_token)):
     df = get_df()
@@ -82,10 +77,9 @@ def get_kpis(user=Depends(verify_token)):
         "total_profit": total_profit,
         "avg_profit_margin": avg_margin,
         "best_department": best_dept,
-       "latest_year_revenue": latest_revenue,
+        "latest_year_revenue": latest_revenue,
     }
 
-# Revenue by department
 @app.get("/revenue-by-dept")
 def revenue_by_dept(year: Optional[int] = None, user=Depends(verify_token)):
     df = get_df()
@@ -99,7 +93,6 @@ def revenue_by_dept(year: Optional[int] = None, user=Depends(verify_token)):
     ).reset_index().round(2)
     return result.to_dict(orient='records')
 
-# Monthly trends
 @app.get("/monthly-trends")
 def monthly_trends(year: Optional[int] = None, user=Depends(verify_token)):
     df = get_df()
@@ -112,7 +105,6 @@ def monthly_trends(year: Optional[int] = None, user=Depends(verify_token)):
     ).reset_index().sort_values(['year', 'month']).round(2)
     return result.to_dict(orient='records')
 
-# Budget vs actual
 @app.get("/budget-vs-actual")
 def budget_vs_actual(user=Depends(verify_token)):
     df = get_df()
@@ -126,13 +118,11 @@ def budget_vs_actual(user=Depends(verify_token)):
     result['variance_pct'] = ((result['revenue_variance'] / result['budget_revenue']) * 100).round(2)
     return result.to_dict(orient='records')
 
-# Revenue forecast
 @app.get("/forecast")
 def get_forecast_data(user=Depends(verify_token)):
     df = get_forecast()
     return df.to_dict(orient='records')
 
-# YoY growth
 @app.get("/yoy-growth")
 def yoy_growth(user=Depends(verify_token)):
     df = get_df()
@@ -143,9 +133,11 @@ def yoy_growth(user=Depends(verify_token)):
     ).reset_index().round(2)
     yearly['revenue_growth'] = yearly['revenue'].pct_change().round(4) * 100
     yearly['profit_growth']  = yearly['profit'].pct_change().round(4) * 100
-    return yearly.to_dict(orient='records')
+    return JSONResponse(
+        content=yearly.to_dict(orient='records'),
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
 
-# Generate report
 @app.get("/generate-report")
 def generate_report(user=Depends(verify_token)):
     from backend.reports.excel_report import generate_excel_report
