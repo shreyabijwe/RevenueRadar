@@ -5,7 +5,7 @@ import BudgetChart from './BudgetChart';
 import ForecastChart from './ForecastChart';
 import YoYChart from './YoYChart';
 
-const API = 'http://127.0.0.1:8000';
+const API = 'https://revenueradar-api.onrender.com';
 
 function Dashboard({ token, onLogout }) {
   const [kpis, setKpis] = useState(null);
