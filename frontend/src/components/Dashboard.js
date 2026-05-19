@@ -25,14 +25,14 @@ function Dashboard({ token, onLogout }) {
       .catch(() => setLoading(false));
   }, []);
 
-  const navItems = ['Dashboard', 'Revenue', 'Budget', 'Forecast', 'Growth'];
+  const navItems = ['Dashboard', 'Revenue', 'Budget', 'Forecast'];
 
   const renderPage = () => {
     switch (activePage) {
       case 'Revenue':   return <div style={styles.pageWrap}><h2 style={styles.pageTitle}>Revenue Analysis</h2><RevenueChart token={token} API={API} /></div>;
       case 'Budget':    return <div style={styles.pageWrap}><h2 style={styles.pageTitle}>Budget vs Actual</h2><BudgetChart token={token} API={API} /></div>;
       case 'Forecast':  return <div style={styles.pageWrap}><h2 style={styles.pageTitle}>Revenue Forecast</h2><ForecastChart token={token} API={API} /></div>;
-      case 'Growth':    return <div style={styles.pageWrap}><h2 style={styles.pageTitle}>Year over Year Growth</h2><YoYChart token={token} API={API} /></div>;
+      
       default: return (
         <>
           <KPICards kpis={kpis} />
