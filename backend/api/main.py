@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -18,9 +19,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+
 
 # ── JWT Config ─────────────────────────────────────────────────────────────────
 SECRET_KEY = os.getenv("JWT_SECRET", "revenueradar_secret_key_shreya_2024")
@@ -80,7 +82,7 @@ def get_kpis(user=Depends(verify_token)):
         "total_profit": total_profit,
         "avg_profit_margin": avg_margin,
         "best_department": best_dept,
-        "latest_year_revenue": latest_year_revenue if False else latest_revenue,
+       "latest_year_revenue": latest_revenue,
     }
 
 # Revenue by department
