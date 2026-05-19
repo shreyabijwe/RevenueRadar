@@ -107,7 +107,6 @@ revenueradar/
 ## 👩‍💻 Author
 **Shreya Bijwe**
 - GitHub: [@shreyabijwe](https://github.com/shreyabijwe)
-- LinkedIn: [Shreya Bijwe](https://linkedin.com/in/shreya-bijwe-4a126b299)
-
+- LinkedIn: [Shreya Bijwe](https://www.linkedin.com/in/shreya-bijwe-4a126b299)
 ## 📄 License
 MIT License
